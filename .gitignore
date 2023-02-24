@@ -2,3 +2,6 @@ compile.sh
 dfu-util-*/*
 dfu-discovery
 *.o
+dfu_util.c
+dfuse_mem.c
+quirks.c
