@@ -7,6 +7,8 @@ package main
 
 #include <dfu.h>
 #include <dfu_util.h>
+// This is missing from dfu_util.h
+char *get_path(libusb_device *dev);
 
 // Defined in main.c
 const char *libusbOpen();
@@ -55,4 +57,8 @@ func (d *DFUDiscovery) StartSync(eventCB discovery.EventCallback, errorCB discov
 		return fmt.Errorf("can't open libusb: %s", C.GoString(cErr))
 	}
 	return nil
+}
+
+func getPath(dev *C.struct_libusb_device) string {
+	return C.GoString(C.get_path(dev))
 }
