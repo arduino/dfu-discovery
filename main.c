@@ -25,3 +25,17 @@ void *dfu_malloc(size_t size) { return malloc(size); }
 // This is the global DFU tree instance used in dfu_util.
 struct dfu_if *dfu_root = NULL;
 
+libusb_context *ctx;
+
+const char *libusbOpen() {
+  int err = libusb_init(&ctx);
+  if (err != 0) {
+    return libusb_strerror(err);
+  }
+  return NULL;
+}
+
+void libusbClose() {
+  libusb_exit(ctx);
+  ctx = NULL;
+}

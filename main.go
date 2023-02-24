@@ -7,6 +7,10 @@ package main
 
 #include <dfu.h>
 #include <dfu_util.h>
+
+// Defined in main.c
+const char *libusbOpen();
+void libusbClose();
 */
 import "C"
 
@@ -41,10 +45,14 @@ func (d *DFUDiscovery) Quit() {
 
 // Stop is the handler for the pluggable-discovery STOP command
 func (d *DFUDiscovery) Stop() error {
+	C.libusbClose()
 	return nil
 }
 
 // StartSync is the handler for the pluggable-discovery START_SYNC command
 func (d *DFUDiscovery) StartSync(eventCB discovery.EventCallback, errorCB discovery.ErrorCallback) error {
+	if cErr := C.libusbOpen(); cErr != nil {
+		return fmt.Errorf("can't open libusb: %s", C.GoString(cErr))
+	}
 	return nil
 }
