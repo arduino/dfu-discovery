@@ -42,5 +42,6 @@ void libusbClose() {
 }
 
 void dfuProbeDevices() {
+  dfu_root = NULL;
   probe_devices(ctx);
 }
