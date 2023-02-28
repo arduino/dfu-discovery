@@ -27,7 +27,9 @@ import (
 )
 
 func main() {
-	dfuDisc := &DFUDiscovery{}
+	dfuDisc := &DFUDiscovery{
+		portsCache: map[string]*discovery.Port{},
+	}
 	disc := discovery.NewServer(dfuDisc)
 	if err := disc.Run(os.Stdin, os.Stdout); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err.Error())
@@ -37,7 +39,8 @@ func main() {
 
 // DFUDiscovery is the implementation of the DFU pluggable-discovery
 type DFUDiscovery struct {
-	closeChan chan<- struct{}
+	closeChan  chan<- struct{}
+	portsCache map[string]*discovery.Port
 }
 
 // Hello is the handler for the pluggable-discovery HELLO command
@@ -82,9 +85,23 @@ func (d *DFUDiscovery) StartSync(eventCB discovery.EventCallback, errorCB discov
 
 func (d *DFUDiscovery) sendUpdates(eventCB discovery.EventCallback, errorCB discovery.ErrorCallback) {
 	C.dfuProbeDevices()
+
+	newCache := map[string]*discovery.Port{}
 	for _, dfuIf := range d.getDFUInterfaces() {
-		eventCB("add", dfuIf.AsDiscoveryPort())
+		newPort := dfuIf.AsDiscoveryPort()
+		if _, exist := d.portsCache[newPort.Address]; !exist {
+			eventCB("add", newPort)
+			newCache[newPort.Address] = newPort
+		}
 	}
+
+	for _, oldPort := range d.portsCache {
+		if _, exist := newCache[oldPort.Address]; !exist {
+			eventCB("remove", oldPort)
+		}
+	}
+
+	d.portsCache = newCache
 }
 
 func getPath(dev *C.struct_libusb_device) string {
