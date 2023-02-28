@@ -28,6 +28,7 @@ struct dfu_if *dfu_root = NULL;
 libusb_context *ctx;
 
 const char *libusbOpen() {
+  if (ctx != NULL) return NULL;
   int err = libusb_init(&ctx);
   if (err != 0) {
     return libusb_strerror(err);
@@ -36,8 +37,8 @@ const char *libusbOpen() {
 }
 
 void libusbClose() {
-  libusb_exit(ctx);
-  ctx = NULL;
+  //libusb_exit(ctx);
+  //ctx = NULL;
 }
 
 void dfuProbeDevices() {
