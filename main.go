@@ -139,7 +139,6 @@ func (i *DFUInterface) AsDiscoveryPort() *discovery.Port {
 func (d *DFUDiscovery) getDFUInterfaces() []*DFUInterface {
 	res := []*DFUInterface{}
 	for pdfu := C.dfu_root; pdfu != nil; pdfu = pdfu.next {
-		fmt.Println(pdfu)
 		if (pdfu.flags & C.DFU_IFF_DFU) == 0 {
 			// decide what to do with DFU runtime objects
 			// for the time being, ignore them
