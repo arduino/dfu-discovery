@@ -89,9 +89,9 @@ func (d *DFUDiscovery) sendUpdates(eventCB discovery.EventCallback, errorCB disc
 	newCache := map[string]*discovery.Port{}
 	for _, dfuIf := range d.getDFUInterfaces() {
 		newPort := dfuIf.AsDiscoveryPort()
+		newCache[newPort.Address] = newPort
 		if _, exist := d.portsCache[newPort.Address]; !exist {
 			eventCB("add", newPort)
-			newCache[newPort.Address] = newPort
 		}
 	}
 
