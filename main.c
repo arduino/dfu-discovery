@@ -41,7 +41,22 @@ void libusbClose() {
   //ctx = NULL;
 }
 
+void freeDfuIf(struct dfu_if *pdfu) {
+    libusb_unref_device(pdfu->dev);
+    free(pdfu->alt_name);
+    free(pdfu->serial_name);
+    free(pdfu);
+}
+
+void clearDfuRoot() {
+  while (dfu_root) {
+    struct dfu_if *pdfu = dfu_root;
+    dfu_root = dfu_root->next;
+    freeDfuIf(pdfu);
+  }
+}
+
 void dfuProbeDevices() {
-  dfu_root = NULL;
+  clearDfuRoot();
   probe_devices(ctx);
 }
