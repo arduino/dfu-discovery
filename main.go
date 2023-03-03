@@ -45,9 +45,7 @@ import (
 )
 
 func main() {
-	dfuDisc := &DFUDiscovery{
-		portsCache: map[string]*discovery.Port{},
-	}
+	dfuDisc := &DFUDiscovery{}
 	disc := discovery.NewServer(dfuDisc)
 	if err := disc.Run(os.Stdin, os.Stdout); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err.Error())
@@ -88,11 +86,13 @@ func (d *DFUDiscovery) StartSync(eventCB discovery.EventCallback, errorCB discov
 	}
 	closeChan := make(chan struct{})
 	go func() {
+		d.portsCache = map[string]*discovery.Port{}
 		for {
 			d.sendUpdates(eventCB, errorCB)
 			select {
 			case <-time.After(5 * time.Second):
 			case <-closeChan:
+				d.portsCache = nil
 				return
 			}
 		}
